@@ -5,8 +5,6 @@ author: Jixin Li
 date: "2023-11-30"
 ---
 
-# problem 2
-
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -14,6 +12,8 @@ library(broom)
 library(boot)
 library(modelr)
 ```
+
+# problem 2
 
 ```{r}
 weather_df = 
@@ -111,4 +111,4 @@ boot_strap_log |>
   )
 ```
 
-The distribution of $log(\widehat{\beta_0}*\widehat{\beta_1})$ is normal with a peak of 2.1, which means the majority of the bootstrapped samples have an $log(\widehat{\beta_0}*\widehat{\beta_1})$ value around 2.1
+The distribution of log(b0b1) is normal with a peak of 2.1, which means the majority of the bootstrapped samples have an log(b0b1) value around 2.1
