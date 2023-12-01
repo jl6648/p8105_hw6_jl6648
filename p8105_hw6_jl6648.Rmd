@@ -112,3 +112,98 @@ boot_strap_log |>
 ```
 
 The distribution of log(b0b1) is normal with a peak of 2.1, which means the majority of the bootstrapped samples have an log(b0b1) value around 2.1
+
+# problem 3
+```{r}
+bw_df = 
+  read_csv("birthweight.csv")
+```
+
+## clean the data for regression analysis 
+```{r}
+bw =
+  bw_df |>
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace)) |>
+  janitor::clean_names() |> 
+  select(bwt,everything())
+```
+
+```{r}
+sum(is.na(bw))
+```
+no missing value in this dataset. 
+
+## fit the model
+I fit a MLR with all variables as predictor. According to the meaning of each variable, thay are all related with baby’s birth weight somehow. So, I decided to take all variables as predictor. 
+```{r}
+model_mlr = lm(bwt ~., data = bw)
+
+model_mlr |>
+    broom::tidy() |>
+    knitr::kable()
+```
+
+## plot of model residuals against fitted values
+```{r}
+ bw |> 
+  add_predictions(model_mlr) |>
+  add_residuals(model_mlr) |>
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Residuals vs Fitted Values ", 
+    xlab("Fitted Value"),
+    ylab("Residuals"))
+```
+
+
+```{r}
+cv_df = 
+  crossv_mc(bw, 100) |>
+  mutate(
+    train = map(train, as_tibble), 
+    test = map(test, as_tibble))
+```
+
+```{r}
+cv_df |> 
+  mutate(
+    my_model  = map(train, ~lm(bwt ~., data = .x)),
+    model_2  = map(train, ~lm(bwt ~ gaweeks + blength, data = .x)),
+    model_3  = map(train, ~lm(bwt ~ bhead*blength*babysex, data = .x))) |>
+  mutate(
+    rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
+    rmse_2    = map2_dbl(model_2, test, ~rmse(model = .x, data = .y)),
+    rmse_3 = map2_dbl(model_3, test, ~rmse(model = .x, data = .y))) |>
+  summarize(
+    avg_rmse_my_model = mean(rmse_my_model),
+    avg_rmse_model_2 = mean(rmse_2),
+    avg_rmse_model_3  = mean(rmse_3)
+  ) |>
+  knitr::kable()
+```
+
+```{r}
+cv_df |> 
+  mutate(
+    my_model  = map(train, ~lm(bwt ~., data = .x)),
+    model_2  = map(train, ~lm(bwt ~ gaweeks + blength, data = .x)),
+    model_3  = map(train, ~lm(bwt ~ bhead*blength*babysex, data = .x))) |>
+  mutate(
+    rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
+    rmse_2    = map2_dbl(model_2, test, ~rmse(model = .x, data = .y)),
+    rmse_3 = map2_dbl(model_3, test, ~rmse(model = .x, data = .y))) |>
+  select(starts_with("rmse")) %>%  
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin(aes(fill = model))
+```
+
