@@ -86,7 +86,8 @@ The distribution of r.squared is approximately normal and it's slightly right-sk
 ## identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for $log(\widehat{\beta_1}*\widehat{\beta_2})$
 ```{r}
 boot_strap_log = boot_strap |> 
-   mutate(log = log(beta_0 * beta_1))
+   mutate(log = log(beta_1 * beta_2)) |>
+   drop_na()
 
 log_cl = boot_strap_log |>
   select(log) |> 
@@ -98,20 +99,20 @@ log_cl = boot_strap_log |>
 log_cl
 ```
 
-##  Plot the distribution of $log(\widehat{\beta_0}*\widehat{\beta_1})$
+##  Plot the distribution of $log(\widehat{\beta_1}*\widehat{\beta_2})$
 ```{r}
 boot_strap_log |>
   select(log) |>
   ggplot(aes(x = log)) + 
   geom_density() + 
   labs(
-    title = "Distribution of log(b0*b1) estimates",
-    x = "Estimated log(b0*b1)",
+    title = "Distribution of log(b1*b2) estimates",
+    x = "Estimated log(b1*b2)",
     y = "Density"
   )
 ```
 
-The distribution of log(b0b1) is normal with a peak of 2.1, which means the majority of the bootstrapped samples have an log(b0b1) value around 2.1
+The distribution of log(b1b2) is right-skewed  with a peak of -5.5, which means the majority of the bootstrapped samples have an log(b0b1) value around -5.5. 
 
 # problem 3
 ```{r}
@@ -160,7 +161,7 @@ model_mlr |>
     ylab("Residuals"))
 ```
 
-
+## Compare your model to two others
 ```{r}
 cv_df = 
   crossv_mc(bw, 100) |>
@@ -169,24 +170,7 @@ cv_df =
     test = map(test, as_tibble))
 ```
 
-```{r}
-cv_df |> 
-  mutate(
-    my_model  = map(train, ~lm(bwt ~., data = .x)),
-    model_2  = map(train, ~lm(bwt ~ gaweeks + blength, data = .x)),
-    model_3  = map(train, ~lm(bwt ~ bhead*blength*babysex, data = .x))) |>
-  mutate(
-    rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
-    rmse_2    = map2_dbl(model_2, test, ~rmse(model = .x, data = .y)),
-    rmse_3 = map2_dbl(model_3, test, ~rmse(model = .x, data = .y))) |>
-  summarize(
-    avg_rmse_my_model = mean(rmse_my_model),
-    avg_rmse_model_2 = mean(rmse_2),
-    avg_rmse_model_3  = mean(rmse_3)
-  ) |>
-  knitr::kable()
-```
-
+## plot all three models
 ```{r}
 cv_df |> 
   mutate(
