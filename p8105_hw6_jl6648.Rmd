@@ -233,6 +233,7 @@ model_mlr |>
     xlab("Fitted Value"),
     ylab("Residuals"))
 ```
+
 the slope in the plot is nearly to 0, which indicates there is no linear relationship between predictors and residuals.
 
 ## Compare your model to two others
@@ -265,4 +266,5 @@ cv_df |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(aes(fill = model))
 ```
+
 The plot showed my model has the lowest rmse, model 2 has the highest rmse and the rmse of model 3 is slightly higner than my model. 
