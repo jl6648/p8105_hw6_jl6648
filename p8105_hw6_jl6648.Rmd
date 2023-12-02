@@ -154,7 +154,7 @@ boot_strap |>
   )
 ```
 
-The distribution of r.squared is approximately normal and it's slightly right-skewed. It has a peak around 0.92, which means the majority of the bootstrapped samples have an r.squared value around 0.92.
+The distribution of r.squared is approximately normal and it's slightly left-skewed. It has a peak around 0.92, which means the majority of the bootstrapped samples have an r.squared value around 0.92.
 
 ## identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for $log(\widehat{\beta_1}*\widehat{\beta_2})$
 ```{r}
@@ -185,7 +185,7 @@ boot_strap_log |>
   )
 ```
 
-The distribution of log(b1b2) is right-skewed  with a peak of -5.5, which means the majority of the bootstrapped samples have an log(b0b1) value around -5.5. 
+The distribution of log(b1b2) is left-skewed  with a peak of -5.5, which means the majority of the bootstrapped samples have an log(b0b1) value around -5.5. 
 
 # problem 3
 ```{r}
