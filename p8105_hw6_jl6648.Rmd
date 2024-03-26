@@ -223,6 +223,7 @@ model_mlr |>
 ## plot of model residuals against fitted values
 ```{r}
  bw |> 
+  
   add_predictions(model_mlr) |>
   add_residuals(model_mlr) |>
   ggplot(aes(x = pred, y = resid)) +
